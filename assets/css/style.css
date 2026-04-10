@@ -1,0 +1,47 @@
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+body{background:#f0f2f5;color:#333;}
+.sidebar{width:260px;background:#2c3e50;color:#fff;position:fixed;height:100vh;padding:20px;overflow-y:auto;}
+.sidebar h3{text-align:center;margin:30px 0 40px;font-size:26px;}
+.sidebar ul li{list-style:none;margin:12px 0;}
+.sidebar ul li a{color:#fff;text-decoration:none;display:block;padding:15px;border-radius:8px;font-size:16px;}
+.sidebar ul li a:hover{background:#3498db;}
+.main-content{margin-left:260px;padding:30px;min-height:100vh;background:#fff;}
+h1{color:#2c3e50;margin-bottom:25px;}
+table{width:100%;border-collapse:collapse;background:white;margin:20px 0;}
+table th,table td{border:1px solid #ccc;padding:12px;text-align:left;}
+table th{background:#3498db;color:white;}
+button{background:#3498db;color:white;border:none;padding:12px 25px;border-radius:6px;cursor:pointer;font-size:16px;}
+button:hover{background:#2980b9;}
+.login-page{display:flex;justify-content:center;align-items:center;height:100vh;background:linear-gradient(135deg,#667eea,#764ba2);}
+.login-box{background:white;padding:40px;border-radius:15px;box-shadow:0 15px 35px rgba(0,0,0,0.3);width:400px;text-align:center;}
+input,textarea,select{width:100%;padding:12px;margin:10px 0;border:1px solid #ddd;border-radius:6px;}
+.card{background:white;padding:25px;margin:20px 0;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,0.1);}
+#map{height:70vh;width:100%;border-radius:12px;margin-top:20px;}
+/* Make sure chatbot doesn't get blocked by sidebar/header */
+#bb-chatbot, #bb-trigger {
+    z-index: 9999 !important;
+}
+/* Responsive Design */
+@media(max-width:768px){
+    .sidebar{width:100%;height:auto;position:relative;}
+    .main-content{margin-left:0;}
+}
+/* Scrollbar Styling */
+.sidebar::-webkit-scrollbar{width:8px;}
+.sidebar::-webkit-scrollbar-thumb{background:#34495e;border-radius:4px;}
+.sidebar::-webkit-scrollbar-thumb:hover{background:#3c5d7a;}
+.sidebar::-webkit-scrollbar-track{background:#2c3e50;}
+.sidebar::-webkit-scrollbar-track:hover{background:#34495e;}
+/* Form Focus Effect */
+input:focus,textarea:focus,select:focus{border-color:#3498db;outline:none;box-shadow:0 0 8px rgba(52,152,219,0.3);}
+/* Button Disabled State */
+button:disabled{background:#95a5a6;cursor:not-allowed;} 
+button:disabled:hover{background:#95a5a6;}
+/* Table Row Hover Effect */
+table tbody tr:hover{background:#f9f9f9;}
+/* Card Hover Effect */
+.card:hover{box-shadow:0 8px 30px rgba(0,0,0,0.15);}
+/* Header Styling */
+header{background:#2980b9;color:white;padding:15px 30px;position
+:fixed;top:0;left:260px;right:0;z-index:1000;}
+header h2{margin:0;font-size:24px;}
