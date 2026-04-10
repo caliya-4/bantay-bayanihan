@@ -32,15 +32,9 @@ RUN composer install --no-dev --optimize-autoloader
 RUN mkdir -p /var/www/html/uploads && chown -R www-data:www-data /var/www/html/uploads && chmod -R 775 /var/www/html/uploads
 RUN mkdir -p /var/www/html/cache && chown -R www-data:www-data /var/www/html/cache && chmod -R 775 /var/www/html/cache
 
-# Copy Apache configuration
-COPY .htaccess /var/www/html/.htaccess
-
-# Set ServerName to avoid Apache warning
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
-
-# Enable PHP error display for debugging (will be disabled in production)
-RUN echo "php_flag display_errors on" > /etc/apache2/conf-enabled/php.conf && \
-    echo "php_value error_reporting E_ALL" >> /etc/apache2/conf-enabled/php.conf
+# Replace default Apache config with our custom one
+RUN rm -f /etc/apache2/sites-enabled/000-default.conf
+COPY apache.conf /etc/apache2/sites-enabled/000-default.conf
 
 # Expose port 80
 EXPOSE 80

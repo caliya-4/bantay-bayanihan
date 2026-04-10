@@ -21,10 +21,10 @@ Options -Indexes
 </FilesMatch>
 
 # Prevent access to test files
-<DirectoryMatch "test-files">
+<FilesMatch "test-files">
     Order allow,deny
     Deny from all
-</DirectoryMatch>
+</FilesMatch>
 
 # Block access to log files
 <FilesMatch "\.log$">
@@ -61,26 +61,17 @@ Options -Indexes
     RewriteEngine On
     
     # Force HTTPS (Render handles SSL via X-Forwarded-Proto header)
-    RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    # Skip for localhost or development
     RewriteCond %{HTTP_HOST} !^localhost$
+    RewriteCond %{HTTP:X-Forwarded-Proto} !https
     RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
 </IfModule>
 
-# File upload security
-<FilesMatch "\.(php|phtml|php3|php4|php5|php7)$">
-    <IfModule mod_authz_core.c>
-        Require all denied
-    </IfModule>
+# File upload security - block PHP execution in uploads
+<FilesMatch "uploads/.*\.(php|phtml|php3|php4|php5|php7)$">
+    Order allow,deny
+    Deny from all
 </FilesMatch>
-
-# Allow PHP execution only in specific directories
-# This prevents execution in uploads directory
-<Directory "uploads">
-    <FilesMatch "\.php$">
-        Order allow,deny
-        Deny from all
-    </FilesMatch>
-</Directory>
 
 # Compression for better performance
 <IfModule mod_deflate.c>
