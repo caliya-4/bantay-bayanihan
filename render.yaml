@@ -17,10 +17,6 @@ services:
       - key: APP_SECRET
         generateValue: true
     healthCheckPath: /
-    disk:
-      name: uploads
-      mountPath: /var/www/html/uploads
-      sizeGB: 1
 
 databases:
   - name: bantay-db
