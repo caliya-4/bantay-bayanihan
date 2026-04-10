@@ -213,7 +213,8 @@ if ($current_user_id && count($drills) > 0) {
             padding: 35px;
         }
 
-        /* ANNOUNCEMENTS & DRILLS */
+        /* ANNOUNCEMENTS & 
+        */
         .announcement, .drill {
             border-bottom: 2px solid #f0f4ff;
             padding: 25px 0;

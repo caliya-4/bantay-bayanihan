@@ -38,6 +38,10 @@ COPY .htaccess /var/www/html/.htaccess
 # Set ServerName to avoid Apache warning
 RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
+# Enable PHP error display for debugging (will be disabled in production)
+RUN echo "php_flag display_errors on" > /etc/apache2/conf-enabled/php.conf && \
+    echo "php_value error_reporting E_ALL" >> /etc/apache2/conf-enabled/php.conf
+
 # Expose port 80
 EXPOSE 80
 

@@ -60,8 +60,9 @@ Options -Indexes
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # Force HTTPS (Render handles SSL)
+    # Force HTTPS (Render handles SSL via X-Forwarded-Proto header)
     RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    RewriteCond %{HTTP_HOST} !^localhost$
     RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
 </IfModule>
 
