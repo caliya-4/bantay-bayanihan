@@ -1,0 +1,42 @@
+services:
+  - type: web
+    name: cbantay-bayanihan
+    env: docker
+    plan: free
+    region: oregon
+    dockerfilePath: Dockerfile
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: bantay-db
+          property: host
+      - key: DB_NAME
+        fromDatabase:
+          name: bantay-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: bantay-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: bantay-db
+          property: password
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_SECRET
+        generateValue: true
+    healthCheckPath: /
+    disk:
+      name: uploads
+      mountPath: /var/www/html/uploads
+      sizeGB: 1
+
+databases:
+  - name: bantay-db
+    type: mysql
+    plan: free
+    region: oregon
+    version: "8.0"

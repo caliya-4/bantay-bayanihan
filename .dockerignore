@@ -1,0 +1,12 @@
+.git
+.gitignore
+.env
+node_modules
+vendor
+uploads/*
+cache/*
+*.md
+!README.md
+test-files
+DEPLOYMENT.md
+INFINITYFREE_DEPLOYMENT.md

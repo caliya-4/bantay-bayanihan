@@ -1,9 +1,8 @@
-# Use official PHP 8.1 image with FPM
-FROM php:8.1-fpm
+# Use official PHP 8.1 image with Apache
+FROM php:8.1-apache
 
-# Install system dependencies, Nginx, and PHP extensions
+# Install system dependencies and PHP extensions
 RUN apt-get update && apt-get install -y \
-    nginx \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
@@ -13,6 +12,9 @@ RUN apt-get update && apt-get install -y \
     git \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Enable Apache modules
+RUN a2enmod rewrite headers ssl
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -27,14 +29,17 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 
 # Set permissions for uploads and cache
-RUN mkdir -p /var/www/html/uploads && chmod -R 775 /var/www/html/uploads
-RUN mkdir -p /var/www/html/cache && chmod -R 775 /var/www/html/cache
+RUN mkdir -p /var/www/html/uploads && chown -R www-data:www-data /var/www/html/uploads && chmod -R 775 /var/www/html/uploads
+RUN mkdir -p /var/www/html/cache && chown -R www-data:www-data /var/www/html/cache && chmod -R 775 /var/www/html/cache
 
-# Copy Nginx configuration
-COPY nginx.conf /etc/nginx/sites-enabled/default
+# Copy Apache configuration
+COPY .htaccess /var/www/html/.htaccess
+
+# Set ServerName to avoid Apache warning
+RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Expose port 80
 EXPOSE 80
 
-# Start PHP-FPM and Nginx
-CMD service php8.1-fpm start && nginx -g "daemon off;"
+# Start Apache
+CMD ["apache2-foreground"]
