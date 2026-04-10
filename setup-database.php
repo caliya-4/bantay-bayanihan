@@ -168,23 +168,30 @@ if ($appEnv === 'production' && !$setupEnabled) {
                 }
                 
                 // Read SQL file
-                $sqlFile = __DIR__ . '/db/bantay_bayanihan.sql';
+                $sqlFile = __DIR__ . '/db/bantay_bayanihan_postgresql.sql';
                 if (!file_exists($sqlFile)) {
-                    throw new Exception('SQL file not found: ' . $sqlFile);
+                    throw new Exception('PostgreSQL SQL file not found: ' . $sqlFile);
                 }
                 
                 $sql = file_get_contents($sqlFile);
                 
                 // Execute SQL statements
-                echo '<div class="status info">Importing schema from db/bantay_bayanihan.sql...</div>';
+                echo '<div class="status info">Importing schema from db/bantay_bayanihan_postgresql.sql...</div>';
                 
                 $pdo->exec($sql);
                 
                 echo '<div class="status success">✓ Database schema imported successfully!</div>';
                 
                 // Verify tables
-                $tables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
-                echo '<div class="status success">✓ Created ' . count($tables) . ' table(s): <code>' . implode(', ', $tables) . '</code></div>';
+                $tables = $pdo->query("
+                    SELECT tablename FROM pg_tables 
+                    WHERE schemaname = 'public' 
+                    ORDER BY tablename
+                ")->fetchAll(PDO::FETCH_COLUMN);
+                
+                if (!empty($tables)) {
+                    echo '<div class="status success">✓ Created ' . count($tables) . ' table(s): <code>' . implode(', ', array_map('htmlspecialchars', $tables)) . '</code></div>';
+                }
                 
                 echo '<div class="status info">';
                 echo '<strong>⚠ IMPORTANT:</strong> Delete this file (setup-database.php) after setup for security reasons.<br><br>';

@@ -70,12 +70,31 @@ function env($key, $default = null) {
  * Get database configuration
  */
 function getDatabaseConfig() {
+    // Check for Render's DATABASE_URL first
+    $databaseUrl = env('DATABASE_URL', '');
+    
+    if (!empty($databaseUrl)) {
+        // Parse DATABASE_URL format: postgresql://user:password@host:port/dbname
+        $parsed = parse_url($databaseUrl);
+        
+        return [
+            'host' => $parsed['host'] ?? 'localhost',
+            'port' => $parsed['port'] ?? 5432,
+            'dbname' => ltrim($parsed['path'] ?? '/bantay_bayanihan', '/'),
+            'username' => $parsed['user'] ?? '',
+            'password' => $parsed['pass'] ?? '',
+            'type' => 'postgresql'
+        ];
+    }
+    
+    // Fallback to individual variables
     return [
         'host' => env('DB_HOST', 'localhost'),
+        'port' => env('DB_PORT', 5432),
         'dbname' => env('DB_NAME', 'bantay_bayanihan'),
-        'username' => env('DB_USERNAME', 'root'),
+        'username' => env('DB_USERNAME', 'postgres'),
         'password' => env('DB_PASSWORD', ''),
-        'charset' => 'utf8mb4'
+        'type' => 'postgresql'
     ];
 }
 

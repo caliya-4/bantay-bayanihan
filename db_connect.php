@@ -9,6 +9,7 @@ $host = $dbConfig['host'];
 $dbname = $dbConfig['dbname'];
 $username = $dbConfig['username'];
 $password = $dbConfig['password'];
+$port = $dbConfig['port'] ?? 5432;
 
 // Validate database credentials are set
 if (empty($host) || empty($dbname) || empty($username)) {
@@ -20,6 +21,10 @@ if (empty($host) || empty($dbname) || empty($username)) {
         die("<h1>Database Configuration Error</h1>
              <p>Database credentials are not properly configured.</p>
              <p>Please set these environment variables in Render:</p>
+             <ul>
+             <li><code>DATABASE_URL</code> (from your Render PostgreSQL service)</li>
+             </ul>
+             <p>Or manually set:</p>
              <ul>
              <li><code>DB_HOST</code></li>
              <li><code>DB_NAME</code></li>
@@ -42,16 +47,15 @@ if (empty($host) || empty($dbname) || empty($username)) {
 }
 
 try {
-    // Create PDO instance with proper error handling
+    // Create PDO instance for PostgreSQL
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset={$dbConfig['charset']}",
+        "pgsql:host=$host;port=$port;dbname=$dbname;",
         $username,
         $password,
         [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false,
-            PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+            PDO::ATTR_EMULATE_PREPARES => false
         ]
     );
 } catch (PDOException $e) {
@@ -65,7 +69,7 @@ try {
              <p><strong>Error:</strong> " . htmlspecialchars($e->getMessage()) . "</p>
              <p><strong>Troubleshooting:</strong></p>
              <ul>
-             <li>Check that the database service is running in Render</li>
+             <li>Check that the PostgreSQL service is running in Render</li>
              <li>Verify database credentials in environment variables</li>
              <li>Ensure the database schema has been imported</li>
              </ul>");
@@ -77,7 +81,6 @@ try {
              <p>Please try again in a few minutes or contact support.</p>");
     }
     
-    // Don't die here - let the calling script handle the error
     throw $e;
 }
 ?>
