@@ -24,8 +24,8 @@ services:
 
 databases:
   - name: bantay-db
-    type: postgres
+    databaseName: bantay_bayanihan
+    user: bantay_user
     plan: free
-    region: oregon
-    postgresConfig:
-      version: "14"
+    postgresMajorVersion: "15"
+    ipAllowList: []
