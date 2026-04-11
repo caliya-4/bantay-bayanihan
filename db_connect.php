@@ -9,12 +9,13 @@ $host = $dbConfig['host'];
 $dbname = $dbConfig['dbname'];
 $username = $dbConfig['username'];
 $password = $dbConfig['password'];
-$port = $dbConfig['port'] ?? 5432;
+$port = $dbConfig['port'] ?? 3306;
+$dbType = $dbConfig['type'] ?? 'mysql';
 
 // Validate database credentials are set
 if (empty($host) || empty($dbname) || empty($username)) {
     error_log("Database Configuration Error: Missing required database credentials");
-    
+
     // Show helpful error in development, generic error in production
     $isDebug = env('APP_DEBUG', false);
     if ($isDebug) {
@@ -22,10 +23,11 @@ if (empty($host) || empty($dbname) || empty($username)) {
              <p>Database credentials are not properly configured.</p>
              <p>Please set these environment variables in Render:</p>
              <ul>
-             <li><code>DATABASE_URL</code> (from your Render PostgreSQL service)</li>
+             <li><code>DATABASE_URL</code> (from your Render PostgreSQL service or external MySQL)</li>
              </ul>
              <p>Or manually set:</p>
              <ul>
+             <li><code>DB_TYPE</code> (mysql or postgresql)</li>
              <li><code>DB_HOST</code></li>
              <li><code>DB_NAME</code></li>
              <li><code>DB_USERNAME</code></li>
@@ -33,6 +35,7 @@ if (empty($host) || empty($dbname) || empty($username)) {
              </ul>
              <p>Current values:</p>
              <pre>
+             DB_TYPE: " . (empty($dbType) ? '(not set)' : $dbType) . "
              DB_HOST: " . (empty($host) ? '(not set)' : $host) . "
              DB_NAME: " . (empty($dbname) ? '(not set)' : $dbname) . "
              DB_USERNAME: " . (empty($username) ? '(not set)' : $username) . "
@@ -47,9 +50,17 @@ if (empty($host) || empty($dbname) || empty($username)) {
 }
 
 try {
-    // Create PDO instance for PostgreSQL
+    // Create PDO instance based on database type
+    if ($dbType === 'postgresql') {
+        // PostgreSQL connection
+        $dsn = "pgsql:host=$host;port=$port;dbname=$dbname;";
+    } else {
+        // MySQL connection (default)
+        $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=utf8mb4";
+    }
+    
     $pdo = new PDO(
-        "pgsql:host=$host;port=$port;dbname=$dbname;",
+        $dsn,
         $username,
         $password,
         [
@@ -60,18 +71,21 @@ try {
     );
 } catch (PDOException $e) {
     error_log("Database Connection Error: " . $e->getMessage());
-    
+
     // Show helpful error based on environment
     $isDebug = env('APP_DEBUG', false);
     if ($isDebug) {
+        $dbTypeLabel = ($dbType === 'postgresql') ? 'PostgreSQL' : 'MySQL';
         die("<h1>Database Connection Failed</h1>
-             <p>Could not connect to the database.</p>
+             <p>Could not connect to the $dbTypeLabel database.</p>
              <p><strong>Error:</strong> " . htmlspecialchars($e->getMessage()) . "</p>
+             <p><strong>Database Type:</strong> $dbTypeLabel</p>
              <p><strong>Troubleshooting:</strong></p>
              <ul>
-             <li>Check that the PostgreSQL service is running in Render</li>
+             <li>Check that the database service is running</li>
              <li>Verify database credentials in environment variables</li>
              <li>Ensure the database schema has been imported</li>
+             <li>For Render PostgreSQL: Check service logs in dashboard</li>
              </ul>");
     } else {
         // In production, show generic message
@@ -80,7 +94,7 @@ try {
              <p>The application is currently being set up or experiencing issues.</p>
              <p>Please try again in a few minutes or contact support.</p>");
     }
-    
+
     throw $e;
 }
 ?>

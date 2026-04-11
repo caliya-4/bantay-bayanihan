@@ -2,16 +2,18 @@
 FROM php:8.1-apache
 
 # Install system dependencies and PHP extensions
+# Note: We're installing BOTH MySQL and PostgreSQL extensions for flexibility
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libonig-dev \
     libxml2-dev \
     libpq-dev \
+    default-libmysqlclient-dev \
     zip \
     unzip \
     curl \
     git \
-    && docker-php-ext-install pdo_pgsql mbstring exif pcntl bcmath gd \
+    && docker-php-ext-install pdo_pgsql pdo_mysql mbstring exif pcntl bcmath gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Enable Apache modules

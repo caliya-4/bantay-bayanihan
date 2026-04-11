@@ -68,33 +68,49 @@ function env($key, $default = null) {
 
 /**
  * Get database configuration
+ * Supports both MySQL and PostgreSQL based on environment variables
  */
 function getDatabaseConfig() {
     // Check for Render's DATABASE_URL first
     $databaseUrl = env('DATABASE_URL', '');
-    
+
     if (!empty($databaseUrl)) {
         // Parse DATABASE_URL format: postgresql://user:password@host:port/dbname
+        // or mysql://user:password@host:port/dbname
         $parsed = parse_url($databaseUrl);
         
+        // Detect database type from URL scheme
+        $scheme = strtolower($parsed['scheme'] ?? '');
+        $dbType = 'mysql'; // Default to MySQL for backward compatibility
+        
+        if (strpos($scheme, 'postgres') !== false) {
+            $dbType = 'postgresql';
+        } elseif (strpos($scheme, 'mysql') !== false) {
+            $dbType = 'mysql';
+        }
+
         return [
             'host' => $parsed['host'] ?? 'localhost',
-            'port' => $parsed['port'] ?? 5432,
+            'port' => $parsed['port'] ?? ($dbType === 'postgresql' ? 5432 : 3306),
             'dbname' => ltrim($parsed['path'] ?? '/bantay_bayanihan', '/'),
             'username' => $parsed['user'] ?? '',
             'password' => $parsed['pass'] ?? '',
-            'type' => 'postgresql'
+            'type' => $dbType
         ];
     }
-    
+
     // Fallback to individual variables
+    // Auto-detect type based on port or explicit DB_TYPE variable
+    $dbType = env('DB_TYPE', 'mysql');
+    $defaultPort = ($dbType === 'postgresql') ? 5432 : 3306;
+    
     return [
         'host' => env('DB_HOST', 'localhost'),
-        'port' => env('DB_PORT', 5432),
+        'port' => env('DB_PORT', $defaultPort),
         'dbname' => env('DB_NAME', 'bantay_bayanihan'),
-        'username' => env('DB_USERNAME', 'postgres'),
+        'username' => env('DB_USERNAME', 'root'),
         'password' => env('DB_PASSWORD', ''),
-        'type' => 'postgresql'
+        'type' => $dbType
     ];
 }
 
